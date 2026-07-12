@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Faculty AI Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-mark">FA</div>
+                <div>
+                    <div class="brand-name">Faculty AI</div>
+                    <div class="brand-subtitle">Academic Assistant</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/">
+                    <span class="icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/chat">
+                    <span class="icon">💬</span>
+                    <span>AI Assistant</span>
+                </a>
+                <a href="/profile">
+                    <span class="icon">📄</span>
+                    <span>My Profile</span>
+                </a>
+                <a href="/analytics">
+                    <span class="icon">📊</span>
+                    <span>Insights</span>
+                </a>
+            </nav>
+        </aside>
+
+        <div class="main-panel">
+            <header class="topbar">
+                <button class="sidebar-toggle" type="button" aria-label="Toggle navigation">
+                    ☰
+                </button>
+                <div class="topbar-title">Faculty AI Portal</div>
+                <div class="topbar-actions">
+                    <span class="status-pill">Live</span>
+                </div>
+            </header>
+
+            <main class="content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const sidebar = document.querySelector('.sidebar');
+        const toggleButton = document.querySelector('.sidebar-toggle');
+        toggleButton?.addEventListener('click', () => {
+            sidebar.classList.toggle('sidebar-open');
+        });
+    </script>
+</body>
+</html>
+    </div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="chat-page">
+    <div class="chat-main">
+        <div class="section-header">
+            <h2>AI Faculty Assistant</h2>
+            <p>Ask questions about faculty data, publications, research summaries, or your academic profile.</p>
+        </div>
+
+        <div class="card assistant-panel">
+            <div class="assistant-status">
+                <div>
+                    <p class="eyebrow">Assistant status</p>
+                    <h3>Ready to analyze faculty content</h3>
+                </div>
+                <span class="status-pill">Live</span>
+            </div>
+            <div class="assistant-summary">
+                <p>Use the assistant to summarize documents, compare research trends, or plan your next academic milestone.</p>
+            </div>
+            <div class="small-text" style="margin-top:0.6rem;">
+                {% if last_doc_name and doc_loaded %}
+                    Using uploaded document: <strong>{{ last_doc_name }}</strong>
+                {% elif last_doc_name and not doc_loaded %}
+                    Uploaded: <strong>{{ last_doc_name }}</strong> (unreadable - re-upload or install parsers)
+                {% else %}
+                    No document uploaded. Upload via the <a href="/profile">Profile</a> page.
+                {% endif %}
+            </div>
+        </div>
+
+        <div id="chat-history" class="chat-box">
+            <div class="bot-msg">Hello! Ask me anything about faculty data, publications, or research summaries.</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Ask about research papers, grants, or teaching metrics...">
+            <button type="button" onclick="sendMessage()" class="btn-primary">Send</button>
+        </div>
+    </div>
+
+    <aside class="chat-sidebar">
+        <div class="card profile-preview-card">
+            <h3>Upload Document for AI Chat</h3>
+            <p class="small-text">Upload a CV, publication list, or academic summary in the Profile section. Once uploaded, the AI assistant can answer questions using your document content.</p>
+            <a href="/profile" class="btn-primary" style="display: inline-block; text-align: center; margin-top: 1rem;">Go to Upload</a>
+        </div>
+
+        <div class="card prompt-card">
+            <h3>Suggested prompts</h3>
+            <button type="button" class="suggestion-chip" onclick="prefill('Summarize the latest faculty publications for 2024.')">Summarize latest publications</button>
+            <button type="button" class="suggestion-chip" onclick="prefill('What research areas are emerging for our faculty?')">Research area trends</button>
+            <button type="button" class="suggestion-chip" onclick="prefill('Compare citation impact against peer institutions.')">Peer comparison</button>
+            <button type="button" class="suggestion-chip" onclick="prefill('Generate a brief academic profile summary for a faculty member.')">Profile summary prompt</button>
+        </div>
+
+        <div class="card metric-card">
+            <h3>Chat tips</h3>
+            <ul>
+                <li>Ask for summaries of uploaded documents.</li>
+                <li>Request guidance on CV improvements.</li>
+                <li>Ask for research trend comparisons.</li>
+            </ul>
+        </div>
+    </aside>
+</div>
+
+<script>
+async function sendMessage() {
+    const inputField = document.getElementById('user-input');
+    const chatHistory = document.getElementById('chat-history');
+    const userText = inputField.value.trim();
+
+    if (userText === "") return;
+
+    chatHistory.innerHTML += `<div class="user-msg">${userText}</div>`;
+    inputField.value = '';
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    const loadingMessage = document.createElement('div');
+    loadingMessage.className = 'bot-msg';
+    loadingMessage.textContent = 'Processing your request...';
+    chatHistory.appendChild(loadingMessage);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: userText }),
+        });
+        const data = await response.json();
+        loadingMessage.textContent = data.response || 'No response returned from backend.';
+    } catch (error) {
+        loadingMessage.textContent = 'Backend error: could not get a response. Please try again.';
+    }
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+function prefill(text) {
+    const inputField = document.getElementById('user-input');
+    inputField.value = text;
+    inputField.focus();
+}
+
+document.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+        e.preventDefault();
+    }
+});
+</script>
+{% endblock %}

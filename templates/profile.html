@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="profile-page">
+    <div class="section-header">
+        <h2>Generate Your Faculty Profile</h2>
+        <p>Upload your CV, publication list, or academic file to create a polished faculty profile overview.</p>
+    </div>
+
+    <div class="profile-grid">
+        <div class="card upload-panel">
+            <form action="/generate-profile" method="post" enctype="multipart/form-data">
+                <input type="file" name="faculty_doc" required>
+                <button type="submit" class="btn-primary">Process Profile</button>
+            </form>
+            <div class="message-banner warning">
+                Accepted file types: PDF, DOCX, TXT.
+            </div>
+        </div>
+
+        <div class="card profile-guidance-card">
+            <h3>Profile generation tips</h3>
+            <ul class="guidance-list">
+                <li>Upload a CV or research summary for the best results.</li>
+                <li>Include publication and award details in your document.</li>
+                <li>Use a clean, professional file format for faster extraction.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card profile-preview-card">
+        <h3>What this does</h3>
+        <p class="small-text">After uploading, the system extracts highlights and generates a profile summary to help you present your academic achievements clearly.</p>
+        <ul class="highlight-list">
+            <li>Academic focus summary</li>
+            <li>Top publications and research themes</li>
+            <li>Professional profile takeaways</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

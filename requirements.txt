@@ -1,0 +1,10 @@
+Flask
+wheel
+gunicorn
+pandas
+numpy
+requests
+python-dotenv
+setuptools
+ibm-watson-machine-learning
+langchain-ibm

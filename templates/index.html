@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="dashboard-hero">
+    <div class="dashboard-heading">
+        <div>
+            <p class="eyebrow">Welcome back</p>
+            <h1>Faculty AI Dashboard</h1>
+            <p>Manage document uploads, generate faculty profiles, and review academic metrics all from one place.</p>
+        </div>
+        <div class="hero-action">
+            <span class="badge">Quick insights</span>
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="stat-card">
+            <p class="stat-label">Publications</p>
+            <p class="stat-value">{{ stats.publications }}</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Projects</p>
+            <p class="stat-value">{{ stats.projects }}</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Citations</p>
+            <p class="stat-value">{{ stats.citations }}</p>
+        </div>
+        <div class="stat-card accent">
+            <p class="stat-label">Profiles Generated</p>
+            <p class="stat-value">{{ stats.profiles_generated }}</p>
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-panels">
+    <div class="card summary-card">
+        <div class="section-header">
+            <h2>Recent uploads</h2>
+            <p class="small-text">Most recent faculty documents processed.</p>
+        </div>
+        <ul class="recent-list">
+            {% for item in recent_uploads %}
+            <li>
+                <span>{{ item.name }}</span>
+                <span class="recent-date">{{ item.date }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card summary-card">
+        <div class="section-header">
+            <h2>Generated profiles</h2>
+            <p class="small-text">Recent AI-generated faculty summaries.</p>
+        </div>
+        <ul class="recent-list">
+            {% for item in generated_profiles %}
+            <li>
+                <span>{{ item.name }}</span>
+                <span class="status-pill small">{{ item.status }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+<section class="timeline-section">
+    <div class="card summary-card">
+        <div class="section-header timeline-header">
+            <div>
+                <h2>Activity timeline</h2>
+                <p class="small-text">Track the latest document uploads and profile actions.</p>
+            </div>
+            <form action="/clear-history" method="post">
+                <button type="submit" class="btn-primary secondary small">Clear history</button>
+            </form>
+        </div>
+        <div class="timeline-list">
+            {% for event in timeline %}
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-info">
+                    <p class="timeline-title">{{ event.title }}</p>
+                    <p class="small-text">{{ event.detail }}</p>
+                </div>
+                <span class="timeline-time">{{ event.time }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section id="upload-section">
+    <div class="section-header">
+        <h2>Generate a new profile</h2>
+        <p>Upload a CV or academic document to create an AI-powered faculty profile.</p>
+    </div>
+
+    <div class="card upload-panel">
+        {% if error %}
+        <div class="message-banner warning">{{ error }}</div>
+        {% elif message %}
+        <div class="message-banner success">{{ message }}</div>
+        {% endif %}
+
+        <form action="/generate-profile" method="post" enctype="multipart/form-data">
+            <input type="file" name="faculty_doc" accept=".pdf,.txt,.docx" required>
+            <button type="submit" class="btn-primary">Generate AI Profile</button>
+        </form>
+    </div>
+</section>
+
+{% if profile_data %}
+<section id="profile-display">
+    <div class="profile-grid">
+        <div class="card summary-card">
+            <div class="section-header">
+                <h2>Document preview</h2>
+                <p class="small-text">Extracted text snippet from the uploaded document.</p>
+            </div>
+            <div class="preview-snippet">
+                <pre>{{ extracted_snippet }}</pre>
+            </div>
+        </div>
+
+        <div class="card summary-card">
+            <div class="section-header">
+                <h2>Detected strengths</h2>
+                <p class="small-text">Key achievements and highlights identified from the file.</p>
+            </div>
+            <ul class="highlight-list">
+                {% for highlight in detected_strengths %}
+                <li>{{ highlight }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="card profile-result">
+        <div class="section-header">
+            <h2>Generated Profile</h2>
+            {% if file_name %}
+            <p class="small-text">Generated from: {{ file_name }}</p>
+            {% endif %}
+        </div>
+        <div class="result-actions">
+            <form action="/download-profile" method="post">
+                <textarea name="profile_text" hidden>{{ profile_data }}</textarea>
+                <input type="hidden" name="file_name" value="{{ file_name }}">
+                <button type="submit" class="btn-primary secondary">Download Profile</button>
+            </form>
+        </div>
+        <pre>{{ profile_data }}</pre>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

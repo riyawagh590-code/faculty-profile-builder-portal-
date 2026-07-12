@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section-header">
+    <h2>Faculty Research Insights</h2>
+    <p>Review key academic metrics and research distribution trends for your faculty profile.</p>
+</section>
+<div class="analytics-container">
+    <div class="stats-grid">
+        <div class="card stat-card">
+            <div class="stat-meta">
+                <h3>Total Publications</h3>
+                <span class="trend-badge positive">+{{ analytics.publication_trend }}%</span>
+            </div>
+            <p class="big-number">{{ analytics.total_publications }}</p>
+            <div class="sparkline">
+                {% for value in analytics.publications_sparkline %}
+                <span class="sparkline-bar" style="height: {{ value }}%;"></span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card stat-card">
+            <div class="stat-meta">
+                <h3>Citations</h3>
+                <span class="trend-badge positive">+{{ analytics.citation_trend }}%</span>
+            </div>
+            <p class="big-number">{{ analytics.citations_sparkline[-1] if analytics.citations_sparkline else 0 }}</p>
+            <div class="sparkline">
+                {% for value in analytics.citations_sparkline %}
+                <span class="sparkline-bar" style="height: {{ value }}%;"></span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card stat-card">
+            <div class="stat-meta">
+                <h3>H-index</h3>
+                <span class="trend-badge neutral">Stable</span>
+            </div>
+            <p class="big-number">{{ analytics.h_index }}</p>
+            <div class="sparkline">
+                {% for value in [analytics.h_index-3, analytics.h_index-2, analytics.h_index-1, analytics.h_index] %}
+                <span class="sparkline-bar" style="height: {{ value * 3 }}%;"></span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card stat-card">
+            <div class="stat-meta">
+                <h3>Collaboration Score</h3>
+                <span class="trend-badge positive">+4%</span>
+            </div>
+            <p class="big-number">{{ analytics.collaboration_score }}%</p>
+            <div class="sparkline">
+                {% for value in [58, 62, 66, 70, 72, 74] %}
+                <span class="sparkline-bar" style="height: {{ value }}%;"></span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card spotlight-card">
+        <div class="section-header">
+            <h3>Most cited paper</h3>
+            <p class="small-text">Top publication currently driving impact and citations.</p>
+        </div>
+        <p class="spotlight-title">{{ analytics.top_paper_title }}</p>
+        <p class="small-text">{{ analytics.top_paper_journal }} • {{ analytics.top_paper_year }}</p>
+        <div class="spotlight-meta">
+            <span class="big-number">{{ analytics.top_paper_citations }}</span>
+            <span class="trend-badge positive">Top citation driver</span>
+        </div>
+        <div class="mini-trend">
+            {% for value in analytics.recent_trend_points %}
+            <span class="mini-trend-bar" style="height: {{ value / 1.5 }}%;"></span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card action-card">
+        <div class="section-header">
+            <h3>Monthly progress</h3>
+            <p class="small-text">Track recent momentum and what to prioritize next.</p>
+        </div>
+        <div class="action-grid">
+            <div class="progress-trend">
+                {% for point in analytics.monthly_progress %}
+                <div class="progress-pill">
+                    <span class="progress-value">{{ point.value }}%</span>
+                    <span class="progress-month">{{ point.period }}</span>
+                    <p class="small-text">{{ point.label }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="recommendations">
+                <h4>Recommended growth actions</h4>
+                <ul class="action-list">
+                    {% for action in analytics.recommended_actions %}
+                    <li class="action-item">{{ action }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card research-card">
+        <div class="section-header">
+            <h3>Research Focus</h3>
+            <p class="small-text">Segmented focus areas and progress toward key academic themes.</p>
+        </div>
+        <div class="research-grid">
+            <div class="research-pie" style="{{ analytics.research_pie_style }}"></div>
+            <div class="focus-breakdown">
+                {% for segment in analytics.research_focus %}
+                <div class="focus-item" role="button" tabindex="0" title="Click for details" data-description="{{ segment.description }}">
+                    <div class="focus-label">
+                        <span class="focus-dot" style="background: {{ segment.color }}"></span>
+                        <span>{{ segment.label }}</span>
+                        <strong>{{ segment.value }}%</strong>
+                    </div>
+                    <div class="bar"><span class="fill" style="width: {{ segment.value }}%; background: {{ segment.color }}"></span></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="focus-detail" id="focusDetail">Click a focus segment for more detail.</div>
+        <div class="benchmark-grid">
+            {% for item in analytics.benchmark %}
+            <div class="benchmark-row">
+                <div class="benchmark-label">
+                    <span class="benchmark-title">{{ item.label }}</span>
+                    <span class="small-text">You vs peer average</span>
+                </div>
+                <div class="benchmark-bars">
+                    <span class="benchmark-you" style="height: {{ item.you / 2.5 }}%" title="You: {{ item.you }}"></span>
+                    <span class="benchmark-peer" style="height: {{ item.peer / 2.5 }}%" title="Peer: {{ item.peer }}"></span>
+                </div>
+                <div>
+                    <span class="benchmark-value">You {{ item.you }}</span>
+                    <span class="small-text">Peer {{ item.peer }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const detail = document.getElementById('focusDetail');
+        document.querySelectorAll('.focus-item').forEach(item => {
+            const updateDetail = () => {
+                document.querySelectorAll('.focus-item').forEach(i => i.classList.remove('focus-active'));
+                item.classList.add('focus-active');
+                detail.textContent = item.dataset.description || 'Select an area for more detail.';
+            };
+            item.addEventListener('click', updateDetail);
+            item.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    updateDetail();
+                }
+            });
+        });
+
+        const bars = document.querySelectorAll('.sparkline-bar');
+        requestAnimationFrame(() => {
+            bars.forEach(bar => bar.classList.add('loaded'));
+        });
+    });
+</script>
+{% endblock %}
